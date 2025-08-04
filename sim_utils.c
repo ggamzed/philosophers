@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   sim_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gdemirci <gdemirci@student.42kocaeli.  	+#+  +:+       +#+        */
+/*   By: gdemirci <gdemirci@student.42kocaeli.      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 22:55:28 by gdemirci          #+#    #+#             */
 /*   Updated: 2025/08/04 22:55:30 by gdemirci         ###   ########.fr       */
