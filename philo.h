@@ -37,6 +37,7 @@ typedef struct s_table
 	pthread_mutex_t	*forks;
 	t_philo			**philos;
 	time_t			start_time;
+	time_t			custom_think;
 	pthread_mutex_t	write_lock;
 	pthread_mutex_t	meal_lock;
 	pthread_mutex_t	stop_lock;

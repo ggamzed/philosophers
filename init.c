@@ -115,6 +115,8 @@ t_table	*init_table(int argc, char **argv)
 	table->time_to_die = ft_atoi(argv[2]);
 	table->time_to_eat = ft_atoi(argv[3]);
 	table->time_to_sleep = ft_atoi(argv[4]);
+	table->custom_think = (table->time_to_die
+			- table->time_to_eat - table->time_to_sleep) / 2;
 	table->must_eat = -1;
 	if (argc == 6)
 		table->must_eat = ft_atoi(argv[5]);

@@ -50,8 +50,8 @@ bool	is_dead(t_philo *philo)
 
 	dead = false;
 	pthread_mutex_lock(&philo->table->meal_lock);
-	if ((long)(get_current_time() - philo->last_meal) >
-		philo->table->time_to_die)
+	if ((get_current_time() - philo->last_meal)
+		> philo->table->time_to_die)
 		dead = true;
 	pthread_mutex_unlock(&philo->table->meal_lock);
 	return (dead);

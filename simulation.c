@@ -22,7 +22,7 @@ static void	*observer(void *ptr)
 	if (!philos || !philos[0] || !philos[0]->table)
 		return (NULL);
 	while (!check_start(philos[0]->table))
-		usleep(100);
+		usleep(50);
 	while (!check_stop(philos[0]->table))
 	{
 		i = 0;
@@ -64,16 +64,11 @@ static void	philo_routine(t_philo *philo)
 {
 	take_forks(philo);
 	print_action(philo, " is eating", false);
+	ft_usleep(philo->table->time_to_eat);
 	pthread_mutex_lock(&philo->table->meal_lock);
 	philo->last_meal = get_current_time();
+	philo->meals_eaten += 1;
 	pthread_mutex_unlock(&philo->table->meal_lock);
-	ft_usleep(philo->table->time_to_eat);
-	if (!check_stop(philo->table))
-	{
-		pthread_mutex_lock(&philo->table->meal_lock);
-		philo->meals_eaten += 1;
-		pthread_mutex_unlock(&philo->table->meal_lock);
-	}
 	pthread_mutex_unlock(philo->left_fork);
 	pthread_mutex_unlock(philo->right_fork);
 	print_action(philo, " is sleeping", false);
@@ -86,7 +81,7 @@ static void	*philosophers(void *ptr)
 
 	philo = (t_philo *)ptr;
 	while (!check_start(philo->table))
-		usleep(100);
+		usleep(50);
 	if (philo->id % 2 == 0)
 		ft_usleep(philo->table->time_to_eat / 2);
 	if (philo->table->nb_philos == 1)
@@ -101,8 +96,8 @@ static void	*philosophers(void *ptr)
 	while (!check_stop(philo->table))
 	{
 		philo_routine(philo);
-		if (!check_stop(philo->table))
-			print_action(philo, " is thinking", false);
+		print_action(philo, " is thinking", false);
+		ft_usleep(philo->table->custom_think);
 	}
 	return (NULL);
 }
