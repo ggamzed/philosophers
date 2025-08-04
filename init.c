@@ -48,6 +48,9 @@ static void	*init_table_mutexes(t_table *table)
 	if (pthread_mutex_init(&table->stop_lock, 0) != 0)
 		return (error_message("Mutex ERROR!\n"));
 	table->init_level = INIT_STOP_MUTEX;
+	if (pthread_mutex_init(&table->start_lock, 0) != 0)
+		return (error_message("Mutex ERROR!\n"));
+	table->init_level = INIT_START_MUTEX;
 	return (table);
 }
 
@@ -85,7 +88,6 @@ static t_philo	**init_philo(t_table *table)
 	{
 		philos[i]->table = table;
 		philos[i]->id = i + 1;
-		philos[i]->last_meal = get_current_time();
 		philos[i]->meals_eaten = 0;
 		philos[i]->left_fork = &table->forks[i];
 		if (i == 0)
@@ -108,6 +110,7 @@ t_table	*init_table(int argc, char **argv)
 	table->forks_i = 0;
 	table->philos_i = 0;
 	table->stop = 0;
+	table->start = 0;
 	table->nb_philos = ft_atoi(argv[1]);
 	table->time_to_die = ft_atoi(argv[2]);
 	table->time_to_eat = ft_atoi(argv[3]);

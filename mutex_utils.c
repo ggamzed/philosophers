@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "philo.h"
-#include <stdio.h>
 
 void	set_stop(t_table *table)
 {
@@ -20,17 +19,22 @@ void	set_stop(t_table *table)
 	pthread_mutex_unlock(&table->stop_lock);
 }
 
-bool	is_dead(t_philo *philo)
+void	set_start(t_table *table)
 {
-	bool	dead;
+	pthread_mutex_lock(&table->start_lock);
+	table->start = 1;
+	pthread_mutex_unlock(&table->start_lock);
+}
 
-	dead = false;
-	pthread_mutex_lock(&philo->table->meal_lock);
-	if ((long)(get_current_time() - philo->last_meal) >
-		philo->table->time_to_die)
-		dead = true;
-	pthread_mutex_unlock(&philo->table->meal_lock);
-	return (dead);
+bool	check_start(t_table *table)
+{
+	bool start;
+
+	start = false;
+	pthread_mutex_lock(&table->start_lock);
+	start = table->start;
+	pthread_mutex_unlock(&table->start_lock);
+	return (start);
 }
 
 int	check_stop(t_table *table)
@@ -45,17 +49,3 @@ int	check_stop(t_table *table)
 	return (finish);
 }
 
-void	print_action(t_philo *philo, char *action, bool state)
-{
-	size_t	time;
-
-	pthread_mutex_lock(&philo->table->write_lock);
-	if (check_stop(philo->table) && state == false)
-	{
-		pthread_mutex_unlock(&philo->table->write_lock);
-		return ;
-	}
-	time = get_current_time() - philo->table->start_time;
-	printf("%ld %d%s\n", time, philo->id, action);
-	pthread_mutex_unlock(&philo->table->write_lock);
-}

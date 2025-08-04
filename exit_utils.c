@@ -57,6 +57,8 @@ void	clean_all(t_table *table, unsigned int flag)
 	if (!table)
 		exit(EXIT_FAILURE);
 	free_philos(table);
+	if (table->init_level >= INIT_START_MUTEX)
+		pthread_mutex_destroy(&table->stop_lock);
 	if (table->init_level >= INIT_STOP_MUTEX)
 		pthread_mutex_destroy(&table->stop_lock);
 	if (table->init_level >= INIT_MEAL_MUTEX)

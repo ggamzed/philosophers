@@ -28,6 +28,7 @@ typedef enum e_init_level
 	INIT_WRITE_MUTEX,
 	INIT_MEAL_MUTEX,
 	INIT_STOP_MUTEX,
+	INIT_START_MUTEX,
 	MALLOC_PHILOS,
 }	t_init_level;
 
@@ -48,6 +49,8 @@ typedef struct s_table
 	unsigned int	forks_i;
 	unsigned int	philos_i;
 	int				stop;
+	int				start;
+	pthread_mutex_t	start_lock;
 }	t_table;
 
 typedef struct s_philo
@@ -66,14 +69,17 @@ void			clean_all(t_table *table, unsigned int flag);
 int				join_threads(t_table *table, pthread_t obs_id, unsigned int cn);
 t_table			*init_table(int argc, char **argv);
 void			set_stop(t_table *table);
-bool			is_ate_enough(t_philo *philo);
-bool			is_dead(t_philo *philo);
+void			set_start(t_table *table);
+bool			check_start(t_table *table);
 int				check_stop(t_table *table);
+void			set_start_time(t_table *table);
 void			print_action(t_philo *philo, char *action, bool state);
+bool			is_dead(t_philo *philo);
+bool			is_all_ate(t_table *table);
+void			ft_bzero(void *p, size_t size);
 void			*let_the_meal_begin(t_table *table);
 time_t			get_current_time(void);
-void			ft_usleep(size_t mls); //
-void			sim_start_delay(time_t start_time);
+void			ft_usleep(size_t mls);
 unsigned int	ft_strlen(const char *s);
 long			ft_atoi(const char *str);
 

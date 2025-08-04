@@ -11,30 +11,7 @@
 /* ************************************************************************** */
 
 #include "philo.h"
-#include <stdio.h>
 #include <unistd.h>
-
-static bool	is_all_ate(t_table *table)
-{
-	unsigned int	full_count;
-	unsigned int i;
-
-	if (table->must_eat == -1)
-		return (false);
-	full_count = 0;
-	i = 0;
-	while (i < table->nb_philos)
-	{
-		pthread_mutex_lock(&table->meal_lock);
-		if (table->philos[i]->meals_eaten >= table->must_eat)
-			++full_count;
-		pthread_mutex_unlock(&table->meal_lock);
-		i++;
-	}
-	if (full_count == table->nb_philos)
-		return (true);
-	return (false);
-}
 
 static void	*observer(void *ptr)
 {
@@ -44,6 +21,8 @@ static void	*observer(void *ptr)
 	philos = (t_philo **)ptr;
 	if (!philos || !philos[0] || !philos[0]->table)
 		return (NULL);
+	while (!check_start(philos[0]->table))
+		usleep(100);
 	while (!check_stop(philos[0]->table))
 	{
 		i = 0;
@@ -58,28 +37,32 @@ static void	*observer(void *ptr)
 			i++;
 		}
 		if (is_all_ate(philos[0]->table))
-		{
-			set_stop(philos[0]->table);
 			return (NULL);
-		}
-		usleep(100);
 	}
 	return (NULL);
 }
 
+static void	take_forks(t_philo *philo)
+{
+	if (philo->id % 2 == 0)
+	{
+		pthread_mutex_lock(philo->left_fork);
+		print_action(philo, " has taken a fork", false);
+		pthread_mutex_lock(philo->right_fork);
+		print_action(philo, " has taken a fork", false);
+	}
+	else
+	{
+		pthread_mutex_lock(philo->right_fork);
+		print_action(philo, " has taken a fork", false);
+		pthread_mutex_lock(philo->left_fork);
+		print_action(philo, " has taken a fork", false);
+	}
+}
+
 static void	philo_routine(t_philo *philo)
 {
-	if (check_stop(philo->table))
-		return ;
-	pthread_mutex_lock(philo->left_fork);
-	print_action(philo, " has taken a fork", false);
-	if (check_stop(philo->table))
-	{
-		pthread_mutex_unlock(philo->left_fork);
-		return ;
-	}
-	pthread_mutex_lock(philo->right_fork);
-	print_action(philo, " has taken a fork", false);
+	take_forks(philo);
 	print_action(philo, " is eating", false);
 	pthread_mutex_lock(&philo->table->meal_lock);
 	philo->last_meal = get_current_time();
@@ -102,11 +85,10 @@ static void	*philosophers(void *ptr)
 	t_philo	*philo;
 
 	philo = (t_philo *)ptr;
-	pthread_mutex_lock(&philo->table->meal_lock);
-	philo->last_meal = get_current_time();
-	pthread_mutex_unlock(&philo->table->meal_lock);
+	while (!check_start(philo->table))
+		usleep(100);
 	if (philo->id % 2 == 0)
-		ft_usleep(10);
+		ft_usleep(philo->table->time_to_eat / 2);
 	if (philo->table->nb_philos == 1)
 	{
 		pthread_mutex_lock(philo->left_fork);
@@ -125,18 +107,11 @@ static void	*philosophers(void *ptr)
 	return (NULL);
 }
 
-void	ft_bzero(void *p, size_t size)
-{
-	while (size--)
-		((unsigned char *)p)[size] = 0;
-}
-
 void	*let_the_meal_begin(t_table *table)
 {
 	pthread_t		observer_tid;
 	unsigned int	i;
 
-	table->start_time = get_current_time(); //+ (table->nb_philos * 2 * 10);
 	i = 0;
 	while (i < table->nb_philos)
 	{
@@ -155,6 +130,7 @@ void	*let_the_meal_begin(t_table *table)
 		if (pthread_create(&observer_tid, NULL, &observer, table->philos) != 0)
 			return (error_message("Thread Create ERROR!\n"));
 	}
+	set_start_time(table);
 	if (join_threads(table, observer_tid, i))
 		return (NULL);
 	return (table);

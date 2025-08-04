@@ -31,12 +31,6 @@ void	ft_usleep(size_t mls)
 		usleep(50);
 }
 
-void	sim_start_delay(time_t start_time)
-{
-	while (get_current_time() < start_time)
-		continue ;
-}
-
 unsigned int	ft_strlen(const char *s)
 {
 	unsigned int	i;
@@ -71,3 +65,10 @@ long	ft_atoi(const char *str)
 	}
 	return (num * sign);
 }
+
+void	ft_bzero(void *p, size_t size)
+{
+	while (size--)
+		((unsigned char *)p)[size] = 0;
+}
+
