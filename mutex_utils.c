@@ -28,7 +28,7 @@ void	set_start(t_table *table)
 
 bool	check_start(t_table *table)
 {
-	bool start;
+	bool	start;
 
 	start = false;
 	pthread_mutex_lock(&table->start_lock);
@@ -48,4 +48,3 @@ int	check_stop(t_table *table)
 	pthread_mutex_unlock(&table->stop_lock);
 	return (finish);
 }
-

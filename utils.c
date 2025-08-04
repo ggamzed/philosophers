@@ -71,4 +71,3 @@ void	ft_bzero(void *p, size_t size)
 	while (size--)
 		((unsigned char *)p)[size] = 0;
 }
-
