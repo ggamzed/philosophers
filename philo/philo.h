@@ -66,9 +66,9 @@ typedef struct s_philo
 }	t_philo;
 
 void			*error_message(char *str);
-void			clean_all(t_table *table, unsigned int flag);
+int				clean_all(t_table *table, unsigned int flag);
 int				join_threads(t_table *table, pthread_t obs_id, unsigned int cn);
-t_table			*init_table(int argc, char **argv);
+t_table			*init_table(int argc, char **argv, t_table **table);
 void			set_stop(t_table *table);
 void			set_start(t_table *table);
 bool			check_start(t_table *table);

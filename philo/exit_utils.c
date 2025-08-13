@@ -52,13 +52,13 @@ static void	destroy_forks(t_table *table)
 	}
 }
 
-void	clean_all(t_table *table, unsigned int flag)
+int	clean_all(t_table *table, unsigned int flag)
 {
 	if (!table)
-		exit(EXIT_FAILURE);
+		return (1);
 	free_philos(table);
 	if (table->init_level >= INIT_START_MUTEX)
-		pthread_mutex_destroy(&table->stop_lock);
+		pthread_mutex_destroy(&table->start_lock);
 	if (table->init_level >= INIT_STOP_MUTEX)
 		pthread_mutex_destroy(&table->stop_lock);
 	if (table->init_level >= INIT_MEAL_MUTEX)
@@ -70,8 +70,9 @@ void	clean_all(t_table *table, unsigned int flag)
 		free(table->forks);
 	if (table->init_level >= MALLOC_TABLE)
 		free(table);
-	if (flag == 0)
-		exit(EXIT_FAILURE);
+	if (flag == 1)
+		return (1);
+	return (0);
 }
 
 int	join_threads(t_table *table, pthread_t obs_id, unsigned int cn)

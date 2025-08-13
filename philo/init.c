@@ -26,7 +26,10 @@ static pthread_mutex_t	*init_forks(t_table *table)
 	while (i < table->nb_philos)
 	{
 		if (pthread_mutex_init(&forks[i], 0) != 0)
-			return (error_message("Mutex ERROR!\n"));
+		{
+			error_message("Mutex ERROR!\n");
+			return (forks);
+		}
 		table->init_level = INIT_FORKS;
 		i++;
 		table->forks_i = i;
@@ -37,7 +40,7 @@ static pthread_mutex_t	*init_forks(t_table *table)
 static void	*init_table_mutexes(t_table *table)
 {
 	table->forks = init_forks(table);
-	if (!table->forks)
+	if (!table->forks || (table->nb_philos != table->forks_i))
 		return (NULL);
 	if (pthread_mutex_init(&table->write_lock, 0) != 0)
 		return (error_message("Mutex ERROR!\n"));
@@ -68,7 +71,10 @@ static t_philo	**allocate_philos(t_table *table)
 	{
 		philos[i] = malloc(sizeof(t_philo) * 1);
 		if (!philos[i])
-			return (error_message("Malloc ERROR!\n"));
+		{
+			error_message("Malloc ERROR!\n");
+			return (philos);
+		}
 		i++;
 		table->philos_i = i;
 	}
@@ -83,6 +89,8 @@ static t_philo	**init_philo(t_table *table)
 	philos = allocate_philos(table);
 	if (!philos)
 		return (NULL);
+	if (table->philos_i != table->nb_philos)
+		return (philos);
 	i = 0;
 	while (i < table->nb_philos)
 	{
@@ -99,31 +107,29 @@ static t_philo	**init_philo(t_table *table)
 	return (philos);
 }
 
-t_table	*init_table(int argc, char **argv)
+t_table	*init_table(int argc, char **argv, t_table **table)
 {
-	t_table	*table;
-
-	table = malloc(sizeof(t_table));
-	if (!table)
+	*table = malloc(sizeof(t_table));
+	if (!(*table))
 		return (error_message("Malloc ERROR!\n"));
-	table->init_level = MALLOC_TABLE;
-	table->forks_i = 0;
-	table->philos_i = 0;
-	table->stop = 0;
-	table->start = 0;
-	table->nb_philos = ft_atoi(argv[1]);
-	table->time_to_die = ft_atoi(argv[2]);
-	table->time_to_eat = ft_atoi(argv[3]);
-	table->time_to_sleep = ft_atoi(argv[4]);
-	table->custom_think = (table->time_to_die
-			- table->time_to_eat - table->time_to_sleep) / 2;
-	table->must_eat = -1;
+	(*table)->init_level = MALLOC_TABLE;
+	(*table)->forks_i = 0;
+	(*table)->philos_i = 0;
+	(*table)->stop = 0;
+	(*table)->start = 0;
+	(*table)->nb_philos = ft_atoi(argv[1]);
+	(*table)->time_to_die = ft_atoi(argv[2]);
+	(*table)->time_to_eat = ft_atoi(argv[3]);
+	(*table)->time_to_sleep = ft_atoi(argv[4]);
+	(*table)->custom_think = ((*table)->time_to_die
+			- (*table)->time_to_eat - (*table)->time_to_sleep) / 2;
+	(*table)->must_eat = -1;
 	if (argc == 6)
-		table->must_eat = ft_atoi(argv[5]);
-	if (!init_table_mutexes(table))
+		(*table)->must_eat = ft_atoi(argv[5]);
+	if (!init_table_mutexes(*table))
 		return (NULL);
-	table->philos = init_philo(table);
-	if (!table->philos)
+	(*table)->philos = init_philo(*table);
+	if (!(*table)->philos || (*table)->philos_i != (*table)->nb_philos)
 		return (NULL);
-	return (table);
+	return (*table);
 }
